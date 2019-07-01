@@ -2,20 +2,84 @@
 extern crate conrod;
 
 use conrod::{color, widget, Widget};
-use conrod::widget::triangles::Triangle;
+use conrod::widget::triangles::{Triangle, ColoredPoint};
 use conrod::backend::glium::glium::{self, Surface};
 
+use color::Color;
+
+use rand::Rng;
+
+#[derive(Debug)]
 struct Bot {
     x: f64,
     y: f64,
-    rotation: f64,  // Degrees
-    colour: (f32, f32, f32)
+    rot: f64,  // Degrees
+    colour: color::Color,
 }
 
+impl Bot {
+    fn new(x: f64, y: f64, rot: f64, colour: Color) -> Bot {
+        Bot { x, y, rot, colour }
+    }
+
+    fn random(x_max: u32, y_max: u32) -> Bot {
+        let mut rng = rand::thread_rng();
+        let x_lim = x_max as f64 / 2.0;
+        let y_lim = y_max as f64 / 2.0;
+        let x = rng.gen_range(-x_lim, x_lim);
+        let y = rng.gen_range(-y_lim, y_lim);
+        let rot = rng.gen_range(0.0, 360.0);
+        let col_r = rng.gen_range(0.0, 1.0);
+        let col_g = rng.gen_range(0.0, 1.0);
+        let col_b = rng.gen_range(0.0, 1.0);
+        let col = Color::from(color::Rgba(col_r, col_g, col_b, 1.0));
+        Bot::new(x, y, rot, col)
+    }
+
+    fn modified(index: u32) -> Bot {
+        let x = index as f64 * 100.0;
+        let y = index as f64 * 100.0;
+        let rot = index as f64 * 30.0;
+        let col = match index {
+            0 => color::RED,
+            1 => color::GREEN,
+            2 => color::BLUE,
+            3 => color::YELLOW,
+            4 => color::PURPLE,
+            _ => color::WHITE
+        };
+        Bot::new(x, y, rot, col)
+    }
+
+    fn l_b(&self) -> ColoredPoint {
+        ([self.x - 5.0, self.y - 5.0], self.colour.into())
+    }
+
+    fn r_b(&self) -> ColoredPoint {
+        ([self.x + 5.0, self.y - 5.0], self.colour.into())
+    }
+
+    fn top(&self) -> ColoredPoint {
+        ([self.x, self.y + 5.0], self.colour.into())
+    }
+
+    fn to_triangle(&self) -> Triangle<ColoredPoint> {
+        Triangle([ self.l_b(), self.r_b(), self.top() ])
+    }
+}
 
 pub fn main() {
-    const WIDTH: u32 = 700;
-    const HEIGHT: u32 = 400;
+    const WIDTH: u32 = 800;
+    const HEIGHT: u32 = 600;
+    const START_BOTS: u32 = 5;
+
+    // Construct a list of random bots
+    let bots : Vec<Bot> = (0..START_BOTS).map(|_| Bot::random(WIDTH, HEIGHT)).collect();
+    // let bots : Vec<Bot> = (0..5).map(|index| Bot::modified(index)).collect();
+    println!("Generated following bots:");
+    for bot in &bots {
+        println!("{:?}", bot);
+    }
 
     // Build the window.
     let mut events_loop = glium::glutin::EventsLoop::new();
@@ -79,13 +143,11 @@ pub fn main() {
         {
             let ui = &mut ui.set_widgets();
             let rect = ui.rect_of(ui.window).unwrap();
-            let (l, r, b, t) = rect.l_r_b_t();
-            let (c1, c2, c3) = (color::RED.to_rgb(), color::GREEN.to_rgb(), color::BLUE.to_rgb());
+            // Disabled as triangles no longer fill screen
+            // let (l, r, b, t) = rect.l_r_b_t();
+            // let (c1, c2, c3) = (color::RED.to_rgb(), color::GREEN.to_rgb(), color::BLUE.to_rgb());
 
-            let triangles = [
-                Triangle([([l, b], c1), ([l, t], c2), ([r, t], c3)]),
-                Triangle([([r, t], c1), ([r, b], c2), ([l, b], c3)]),
-            ];
+            let triangles: Vec<Triangle<ColoredPoint>> = bots.iter().map(|bot| bot.to_triangle()).collect();
 
             widget::Triangles::multi_color(triangles.iter().cloned())
                 .with_bounding_rect(rect)
