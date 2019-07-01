@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 conrod = { version = "0.61.1", features = ["piston", "winit", "glium"] }
 rand = "0.7.0"
+nalgebra = "0.18.0"
