@@ -5,3 +5,4 @@ authors = ["Ponder Stibbons Club"]
 edition = "2018"
 
 [dependencies]
+conrod = { version = "0.61.1", features = ["piston", "winit", "glium"] }
