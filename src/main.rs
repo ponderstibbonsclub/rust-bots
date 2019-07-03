@@ -1,82 +1,12 @@
 #[macro_use]
 extern crate conrod;
 
-use conrod::{color, widget, Widget};
+use conrod::{widget, Widget};
 use conrod::widget::triangles::{Triangle, ColoredPoint};
 use conrod::backend::glium::glium::{self, Surface};
 
-use color::Color;
-use nalgebra::{Isometry2, Vector2, Point2};
-use rand::Rng;
-
-#[derive(Debug)]
-struct Bot {
-    pos: Vector2<f64>,
-    rot: f64,  // Degrees anti-clockwise
-    colour: color::Color,
-}
-
-impl Bot {
-    fn new(pos: Vector2<f64>, rot: f64, colour: Color) -> Bot {
-        Bot { pos, rot, colour }
-    }
-
-    fn random(x_max: u32, y_max: u32) -> Bot {
-        let mut rng = rand::thread_rng();
-        let x_lim = x_max as f64 / 2.0;
-        let y_lim = y_max as f64 / 2.0;
-        let x = rng.gen_range(-x_lim, x_lim);
-        let y = rng.gen_range(-y_lim, y_lim);
-
-        let rot: f64 = rng.gen_range(0.0, 360.0);
-        let col_r = rng.gen_range(0.0, 1.0);
-        let col_g = rng.gen_range(0.0, 1.0);
-        let col_b = rng.gen_range(0.0, 1.0);
-        let col = Color::from(color::Rgba(col_r, col_g, col_b, 1.0));
-        Bot::new(Vector2::new(x, y), rot, col)
-    }
-
-    fn modified(index: u32) -> Bot {
-        let x = index as f64 * 20.0;
-        let y = index as f64 * 20.0;
-        let rot: f64 = index as f64 * -30.0;
-        let col = match index {
-            0 => color::RED,
-            1 => color::GREEN,
-            2 => color::BLUE,
-            3 => color::YELLOW,
-            4 => color::PURPLE,
-            _ => color::WHITE
-        };
-        Bot::new(Vector2::new(x, y), rot, col)
-    }
-
-    fn to_triangle_point(&self, x: f64, y: f64) -> Point2<f64> {
-        let source = Point2::new( x, y );
-        let transform = Isometry2::new(self.pos, self.rot.to_radians());
-
-        transform * source
-    }
-
-    fn l_b(&self) -> ColoredPoint {
-        let p = self.to_triangle_point( -5.0, -5.0);
-        ([p.x, p.y], self.colour.into())
-    }
-
-    fn r_b(&self) -> ColoredPoint {
-        let p = self.to_triangle_point( 5.0, -5.0);
-        ([p.x, p.y], self.colour.into())
-    }
-
-    fn top(&self) -> ColoredPoint {
-        let p = self.to_triangle_point( 0.0, 10.0);
-        ([p.x, p.y], self.colour.into())
-    }
-
-    fn to_triangle(&self) -> Triangle<ColoredPoint> {
-        Triangle([ self.l_b(), self.r_b(), self.top() ])
-    }
-}
+mod bot;
+use bot::Bot;
 
 pub fn main() {
     const WIDTH: u32 = 800;
