@@ -5,21 +5,38 @@ use conrod::{widget, Widget};
 use conrod::widget::triangles::{Triangle, ColoredPoint};
 use conrod::backend::glium::glium::{self, Surface};
 
+use specs::{DispatcherBuilder, WorldExt};
+
 mod bot;
+mod component;
+mod system;
+mod world;
+
 use bot::Bot;
+use system::UpdatePose;
+use world::BotWorld;
+
+pub const WIDTH: u32 = 800;
+pub const HEIGHT: u32 = 600;
+pub const START_BOTS: u32 = 400;
 
 pub fn main() {
-    const WIDTH: u32 = 800;
-    const HEIGHT: u32 = 600;
-    const START_BOTS: u32 = 400;
 
     // Construct a list of random bots
-    let bots : Vec<Bot> = (0..START_BOTS).map(|_| Bot::random(WIDTH, HEIGHT)).collect();
-    // let bots : Vec<Bot> = (0..5).map(|index| Bot::modified(index)).collect();
+    // let bots : Vec<Bot> = (0..START_BOTS).map(|_| Bot::random(WIDTH, HEIGHT)).collect();
+    let bots : Vec<Bot> = (0..5).map(|index| Bot::modified(index)).collect();
     println!("Generated following bots:");
     for bot in &bots {
         println!("{:?}", bot);
     }
+
+    // Construct world containing bots
+    let mut world = BotWorld::create();
+    let mut dispatcher = DispatcherBuilder::new()
+        .with(UpdatePose, "update_pose", &[])
+        .build();
+    dispatcher.dispatch(&mut world);
+    world.maintain();
 
     // Build the window.
     let mut events_loop = glium::glutin::EventsLoop::new();
@@ -83,6 +100,14 @@ pub fn main() {
         {
             let ui = &mut ui.set_widgets();
             let rect = ui.rect_of(ui.window).unwrap();
+
+            // TODO
+            // Read all entities with position and colour into an iterator, then map
+            // (pos, col).map(|pos, col| Bot::to_triangle_raw(pos, col)).collect();
+
+            // I'd rather get the ECS to directly render to screen, but this seems like
+            // a reasonable first step
+
             let triangles: Vec<Triangle<ColoredPoint>> = bots.iter().map(|bot| bot.to_triangle()).collect();
 
             widget::Triangles::multi_color(triangles.iter().cloned())

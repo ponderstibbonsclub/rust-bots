@@ -8,3 +8,4 @@ edition = "2018"
 conrod = { version = "0.61.1", features = ["piston", "winit", "glium"] }
 rand = "0.7.0"
 nalgebra = "0.18.0"
+specs = "0.15.0"

@@ -6,9 +6,9 @@ use rand::Rng;
 
 #[derive(Debug)]
 pub struct Bot {
-    pos: Vector2<f64>,
-    rot: f64,  // Degrees anti-clockwise
-    colour: Color,
+    pub pos: Vector2<f64>,
+    pub rot: f64,  // Degrees anti-clockwise
+    pub colour: Color,
 }
 
 impl Bot {
@@ -70,5 +70,11 @@ impl Bot {
 
     pub fn to_triangle(&self) -> Triangle<ColoredPoint> {
         Triangle([ self.l_b(), self.r_b(), self.top() ])
+    }
+
+    pub fn to_triangle_raw(pos: Vector2<f64>, rot: f64, colour: Color) -> Triangle<ColoredPoint> {
+        let bot = Bot::new(pos, rot, colour);
+
+        bot.to_triangle()
     }
 }
