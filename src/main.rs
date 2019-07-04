@@ -5,7 +5,7 @@ use conrod::{widget, Widget};
 use conrod::widget::triangles::{Triangle, ColoredPoint};
 use conrod::backend::glium::glium::{self, Surface};
 
-use specs::{DispatcherBuilder, WorldExt};
+use specs::{DispatcherBuilder, WorldExt, Join};
 
 mod bot;
 mod component;
@@ -15,20 +15,13 @@ mod world;
 use bot::Bot;
 use system::UpdatePose;
 use world::BotWorld;
+use component::{Colour, Pose};
 
 pub const WIDTH: u32 = 800;
 pub const HEIGHT: u32 = 600;
 pub const START_BOTS: u32 = 400;
 
 pub fn main() {
-
-    // Construct a list of random bots
-    // let bots : Vec<Bot> = (0..START_BOTS).map(|_| Bot::random(WIDTH, HEIGHT)).collect();
-    let bots : Vec<Bot> = (0..5).map(|index| Bot::modified(index)).collect();
-    println!("Generated following bots:");
-    for bot in &bots {
-        println!("{:?}", bot);
-    }
 
     // Construct world containing bots
     let mut world = BotWorld::create();
@@ -102,13 +95,15 @@ pub fn main() {
             let rect = ui.rect_of(ui.window).unwrap();
 
             // TODO
-            // Read all entities with position and colour into an iterator, then map
-            // (pos, col).map(|pos, col| Bot::to_triangle_raw(pos, col)).collect();
+            // Get ECS to draw directly to screen through a system to avoid read_storage
 
-            // I'd rather get the ECS to directly render to screen, but this seems like
-            // a reasonable first step
+            let pos_storage = world.read_storage::<Pose>();
+            let col_storage = world.read_storage::<Colour>();
 
-            let triangles: Vec<Triangle<ColoredPoint>> = bots.iter().map(|bot| bot.to_triangle()).collect();
+            let triangles: Vec<Triangle<ColoredPoint>> = (&pos_storage, &col_storage)
+                .join()
+                .map(|(pose, col)| Bot::to_triangle_raw(pose.pos, pose.rot, col.colour))
+                .collect();
 
             widget::Triangles::multi_color(triangles.iter().cloned())
                 .with_bounding_rect(rect)

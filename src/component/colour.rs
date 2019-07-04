@@ -4,7 +4,7 @@ use conrod::color::Color;
 
 #[derive(Clone, Debug)]
 pub struct Colour {
-    colour: Color
+    pub colour: Color
 }
 
 impl Component for Colour {

@@ -3,8 +3,8 @@ use specs::{Component, VecStorage};
 
 #[derive(Debug)]
 pub struct Pose {
-    pos: Vector2<f64>,
-    rot: f64,  // Degrees anti-clockwise
+    pub pos: Vector2<f64>,
+    pub rot: f64,  // Degrees anti-clockwise
 }
 
 impl Component for Pose {
