@@ -1,80 +1,96 @@
-use nalgebra::{Isometry2, Vector2, Point2};
-use conrod::color;
-use conrod::color::Color;
-use conrod::widget::triangles::{Triangle, ColoredPoint};
+use amethyst::{
+    assets::Handle,
+    core::transform::Transform,
+    ecs::prelude::{Component, VecStorage, Builder},
+    prelude::World,
+    renderer::{SpriteRender, SpriteSheet},
+};
+use amethyst_renderer::Rgba;
 use rand::Rng;
+
+use crate::state::{ARENA_HEIGHT, ARENA_WIDTH};
+
+const START_BOTS: u32 = 5;
+const RANDOM_BOTS: bool = false;
 
 #[derive(Debug)]
 pub struct Bot {
-    pub pos: Vector2<f64>,
-    pub rot: f64,  // Degrees anti-clockwise
-    pub colour: Color,
 }
 
 impl Bot {
-    pub fn new(pos: Vector2<f64>, rot: f64, colour: Color) -> Bot {
-        Bot { pos, rot, colour }
+    pub fn new() -> Bot {
+        Bot {}
     }
+}
 
-    pub fn random(x_max: u32, y_max: u32) -> Bot {
-        let mut rng = rand::thread_rng();
-        let x_lim = x_max as f64 / 2.0;
-        let y_lim = y_max as f64 / 2.0;
-        let x = rng.gen_range(-x_lim, x_lim);
-        let y = rng.gen_range(-y_lim, y_lim);
+impl Component for Bot {
+    type Storage = VecStorage<Self>;
+}
 
-        let rot: f64 = rng.gen_range(0.0, 360.0);
-        let col_r = rng.gen_range(0.0, 1.0);
-        let col_g = rng.gen_range(0.0, 1.0);
-        let col_b = rng.gen_range(0.0, 1.0);
-        let col = Color::from(color::Rgba(col_r, col_g, col_b, 1.0));
-        Bot::new(Vector2::new(x, y), rot, col)
-    }
+pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
 
-    pub fn modified(index: u32) -> Bot {
-        let x = index as f64 * 20.0;
-        let y = index as f64 * 20.0;
-        let rot: f64 = index as f64 * -30.0;
-        let col = match index {
-            0 => color::RED,
-            1 => color::GREEN,
-            2 => color::BLUE,
-            3 => color::YELLOW,
-            4 => color::PURPLE,
-            _ => color::WHITE
-        };
-        Bot::new(Vector2::new(x, y), rot, col)
-    }
+    // Assign the sprites for the bots
+    let sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet.clone(),
+        sprite_number: 0,
+    };
 
-    fn to_triangle_point(&self, x: f64, y: f64) -> Point2<f64> {
-        let source = Point2::new( x, y );
-        let transform = Isometry2::new(self.pos, self.rot.to_radians());
+    let mut rng = rand::thread_rng();
 
-        transform * source
-    }
+    if RANDOM_BOTS {
+        for _ in 0..START_BOTS {
+            let x_lim = ARENA_WIDTH as f64;
+            let y_lim = ARENA_HEIGHT as f64;
+            let x = rng.gen_range(0.0, x_lim);
+            let y = rng.gen_range(0.0, y_lim);
+            let rot: f64 = rng.gen_range(0f64, 360f64).to_radians();
 
-    fn l_b(&self) -> ColoredPoint {
-        let p = self.to_triangle_point( -5.0, -5.0);
-        ([p.x, p.y], self.colour.into())
-    }
+            let r = rng.gen_range(0.05, 1.0);
+            let g = rng.gen_range(0.05, 1.0);
+            let b = rng.gen_range(0.05, 1.0);
+            let col = Rgba(r, g, b, 1.0);
 
-    fn r_b(&self) -> ColoredPoint {
-        let p = self.to_triangle_point( 5.0, -5.0);
-        ([p.x, p.y], self.colour.into())
-    }
+            println!("Generated rgba {:?}", col);
 
-    fn top(&self) -> ColoredPoint {
-        let p = self.to_triangle_point( 0.0, 10.0);
-        ([p.x, p.y], self.colour.into())
-    }
+            let mut transform = Transform::default();
+            transform.set_translation_xyz(x, y, 0.0);
+            transform.set_rotation_2d(rot);
+            world.
+                create_entity()
+                .with(Bot::new())
+                .with(transform)
+                .with(col)
+                .with(sprite_render.clone())
+                .build();
+        }
+    } else {
+        for idx in 0..5 {
+            let idx_f64 = idx as f64;
+            let x = ARENA_WIDTH as f64 / 2.0 + idx_f64 * 20f64;
+            let y = ARENA_HEIGHT as f64 / 2.0 + idx_f64 * 20f64;
+            let rot = (idx_f64 * -30f64).to_radians();
+            let mut transform = Transform::default();
+            transform.set_translation_xyz(x, y, 0.0);
+            transform.set_rotation_2d(rot);
 
-    pub fn to_triangle(&self) -> Triangle<ColoredPoint> {
-        Triangle([ self.l_b(), self.r_b(), self.top() ])
-    }
+            let col = match idx {
+                0 => Rgba(1.0, 0.0, 0.0, 1.0),  // Red
+                1 => Rgba(0.0, 1.0, 0.0, 1.0),  // Green
+                2 => Rgba(0.0, 0.0, 1.0, 1.0),  // Blue
+                3 => Rgba(1.0, 1.0, 0.0, 1.0),  // Yellow
+                4 => Rgba(0.727, 0.0, 1.0, 1.0),  // Purple
+                _ => Rgba(1.0, 1.0, 1.0, 1.0),  // White
+            };
 
-    pub fn to_triangle_raw(pos: Vector2<f64>, rot: f64, colour: Color) -> Triangle<ColoredPoint> {
-        let bot = Bot::new(pos, rot, colour);
+            println!("Generated rgba {:?}", col);
 
-        bot.to_triangle()
+            world.
+                create_entity()
+                .with(Bot::new())
+                .with(transform)
+                .with(col)
+                .with(sprite_render.clone())
+                .build();
+        }
     }
 }
