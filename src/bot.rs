@@ -40,7 +40,7 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
         for _ in 0..START_BOTS {
             let x = rng.gen_range(0.0, ARENA_WIDTH);
             let y = rng.gen_range(0.0, ARENA_HEIGHT);
-            let rot: f32 = rng.gen_range(0f32, 360f32).to_radians();
+            let rot = rng.gen_range(0f32, 360f32).to_radians();
 
             let r = rng.gen_range(0.05, 1.0);
             let g = rng.gen_range(0.05, 1.0);
@@ -63,9 +63,9 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
     } else {
         for idx in 0..5 {
             let idx_f32 = idx as f32;
-            let x = ARENA_WIDTH / 2.0 + idx_f32 * 20f32;
-            let y = ARENA_HEIGHT as f32 / 2.0 + idx_f32 * 20f32;
-            let rot = (idx_f32 * -30f32).to_radians();
+            let x = ARENA_WIDTH / 2.0 + idx_f32 * 20.0;
+            let y = ARENA_HEIGHT / 2.0 + idx_f32 * 20.0;
+            let rot = (idx_f32 * -30.0).to_radians();
             let mut transform = Transform::default();
             transform.set_translation_xyz(x, y, 0.0);
             transform.set_rotation_2d(rot);
