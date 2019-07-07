@@ -6,8 +6,7 @@ edition = "2018"
 
 [dependencies]
 rand = "0.7.0"
-amethyst = "0.11.0"
-amethyst_renderer = "0.10.4"
+amethyst = { git = "https://github.com/amethyst/amethyst.git", rev = "b610ebf6ce9e8da88519bb5225d14ed9842cfc16" }
 
 [features]
 empty = ["amethyst/empty"]

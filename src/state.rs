@@ -8,9 +8,9 @@ use amethyst::{
         SpriteSheet,
         SpriteSheetFormat,
         Texture,
+        resources::Tint,
     },
 };
-use amethyst_renderer::Rgba;
 
 use crate::bot::{Bot, initialise_bots};
 
@@ -27,7 +27,7 @@ impl SimpleState for RustBots {
         let sprite_sheet_handle = load_sprite_sheet(world);
 
         world.register::<Bot>();
-        world.register::<Rgba>();
+        world.register::<Tint>();
 
         initialise_bots(world, sprite_sheet_handle);
         initialise_camera(world);

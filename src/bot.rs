@@ -3,9 +3,8 @@ use amethyst::{
     core::transform::Transform,
     ecs::prelude::{Component, VecStorage, Builder},
     prelude::World,
-    renderer::{SpriteRender, SpriteSheet},
+    renderer::{SpriteRender, SpriteSheet, resources::Tint, palette::rgb::Srgba},
 };
-use amethyst_renderer::Rgba;
 use rand::Rng;
 
 use crate::state::{ARENA_HEIGHT, ARENA_WIDTH};
@@ -39,16 +38,14 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
 
     if RANDOM_BOTS {
         for _ in 0..START_BOTS {
-            let x_lim = ARENA_WIDTH as f64;
-            let y_lim = ARENA_HEIGHT as f64;
-            let x = rng.gen_range(0.0, x_lim);
-            let y = rng.gen_range(0.0, y_lim);
-            let rot: f64 = rng.gen_range(0f64, 360f64).to_radians();
+            let x = rng.gen_range(0.0, ARENA_WIDTH);
+            let y = rng.gen_range(0.0, ARENA_HEIGHT);
+            let rot: f32 = rng.gen_range(0f32, 360f32).to_radians();
 
             let r = rng.gen_range(0.05, 1.0);
             let g = rng.gen_range(0.05, 1.0);
             let b = rng.gen_range(0.05, 1.0);
-            let col = Rgba(r, g, b, 1.0);
+            let col = Tint(Srgba::new(r, g, b, 1.0));
 
             println!("Generated rgba {:?}", col);
 
@@ -65,24 +62,24 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
         }
     } else {
         for idx in 0..5 {
-            let idx_f64 = idx as f64;
-            let x = ARENA_WIDTH as f64 / 2.0 + idx_f64 * 20f64;
-            let y = ARENA_HEIGHT as f64 / 2.0 + idx_f64 * 20f64;
-            let rot = (idx_f64 * -30f64).to_radians();
+            let idx_f32 = idx as f32;
+            let x = ARENA_WIDTH / 2.0 + idx_f32 * 20f32;
+            let y = ARENA_HEIGHT as f32 / 2.0 + idx_f32 * 20f32;
+            let rot = (idx_f32 * -30f32).to_radians();
             let mut transform = Transform::default();
             transform.set_translation_xyz(x, y, 0.0);
             transform.set_rotation_2d(rot);
 
             let col = match idx {
-                0 => Rgba(1.0, 0.0, 0.0, 1.0),  // Red
-                1 => Rgba(0.0, 1.0, 0.0, 1.0),  // Green
-                2 => Rgba(0.0, 0.0, 1.0, 1.0),  // Blue
-                3 => Rgba(1.0, 1.0, 0.0, 1.0),  // Yellow
-                4 => Rgba(0.727, 0.0, 1.0, 1.0),  // Purple
-                _ => Rgba(1.0, 1.0, 1.0, 1.0),  // White
+                0 => Tint(Srgba::new(1.0, 0.0, 0.0, 1.0)),  // Red
+                1 => Tint(Srgba::new(0.0, 1.0, 0.0, 1.0)),  // Green
+                2 => Tint(Srgba::new(0.0, 0.0, 1.0, 1.0)),  // Blue
+                3 => Tint(Srgba::new(1.0, 1.0, 0.0, 1.0)),  // Yellow
+                4 => Tint(Srgba::new(0.727, 0.0, 1.0, 1.0)),  // Purple
+                _ => Tint(Srgba::new(1.0, 1.0, 1.0, 1.0)),  // White
             };
 
-            println!("Generated rgba {:?}", col);
+            println!("Generated tint {:?}", col);
 
             world.
                 create_entity()
