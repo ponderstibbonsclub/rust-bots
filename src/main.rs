@@ -1,6 +1,10 @@
+extern crate nalgebra as na;
+
 mod bot;
 mod graph;
+mod components;
 mod state;
+mod systems;
 
 use amethyst::{
     assets::Processor,
@@ -28,6 +32,7 @@ fn main() -> amethyst::Result<()> {
         // The WindowBundle provides all the scaffolding for opening a window
         .with_bundle(WindowBundle::from_config_path(display_config_path))?
         .with_bundle(TransformBundle::new())?
+        .with(systems::MovementSystem, "move_system", &[])
         .with(
             Processor::<SpriteSheet>::new(),
             "sprite_sheet_processor",

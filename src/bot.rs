@@ -8,6 +8,7 @@ use amethyst::{
 use rand::Rng;
 
 use crate::state::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::components::Velocity;
 
 const START_BOTS: u32 = 5;
 const RANDOM_BOTS: bool = false;
@@ -36,6 +37,8 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
 
     let mut rng = rand::thread_rng();
 
+    let velocity = Velocity::new(10.0, 10.0);
+
     if RANDOM_BOTS {
         for _ in 0..START_BOTS {
             let x = rng.gen_range(0.0, ARENA_WIDTH);
@@ -57,6 +60,7 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
                 .with(Bot::new())
                 .with(transform)
                 .with(col)
+                .with(velocity.clone())
                 .with(sprite_render.clone())
                 .build();
         }
@@ -69,7 +73,7 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
             let mut transform = Transform::default();
             transform.set_translation_xyz(x, y, 0.0);
             transform.set_rotation_2d(rot);
-
+ 
             let col = match idx {
                 0 => Tint(Srgba::new(1.0, 0.0, 0.0, 1.0)),  // Red
                 1 => Tint(Srgba::new(0.0, 1.0, 0.0, 1.0)),  // Green
@@ -86,6 +90,7 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
                 .with(Bot::new())
                 .with(transform)
                 .with(col)
+                .with(velocity.clone())
                 .with(sprite_render.clone())
                 .build();
         }
