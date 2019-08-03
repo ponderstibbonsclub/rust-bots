@@ -20,7 +20,8 @@ impl<'s> System<'s> for MovementSystem {
         // Move every entity according to its speed, and the time passed.
         for (vel, position) in (&vels, &mut positions).join() {
             let mov = vel.vel;
-            let rot = mov.x.atan2(mov.y);
+            let rot = mov.y.atan2(mov.x);
+            println!("Movement is {:?}; calculated rotation: {:?}", mov, rot);
 
             position.prepend_translation_x(mov.x * time.delta_seconds());
             position.prepend_translation_y(mov.y * time.delta_seconds());

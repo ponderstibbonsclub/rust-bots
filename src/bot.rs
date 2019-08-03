@@ -10,8 +10,8 @@ use rand::Rng;
 use crate::state::{ARENA_HEIGHT, ARENA_WIDTH};
 use crate::components::Velocity;
 
-const START_BOTS: u32 = 5;
-const RANDOM_BOTS: bool = false;
+const START_BOTS: u32 = 10;
+const RANDOM_BOTS: bool = true;
 
 #[derive(Debug)]
 pub struct Bot {
@@ -43,7 +43,9 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
         for _ in 0..START_BOTS {
             let x = rng.gen_range(0.0, ARENA_WIDTH);
             let y = rng.gen_range(0.0, ARENA_HEIGHT);
-            let rot = rng.gen_range(0f32, 360f32).to_radians();
+            let v_x = rng.gen_range(-10.0, 10.0);
+            let v_y = rng.gen_range(-10.0, 10.0);
+            let velocity = Velocity::new(v_x, v_y);
 
             let r = rng.gen_range(0.05, 1.0);
             let g = rng.gen_range(0.05, 1.0);
@@ -54,7 +56,6 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
 
             let mut transform = Transform::default();
             transform.set_translation_xyz(x, y, 0.0);
-            transform.set_rotation_2d(rot);
             world.
                 create_entity()
                 .with(Bot::new())
