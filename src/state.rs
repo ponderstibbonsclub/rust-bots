@@ -13,7 +13,7 @@ use amethyst::{
 };
 
 use crate::bot::{Bot, initialise_bots};
-use crate::components::Velocity;
+use crate::components::{Size, Velocity};
 
 pub const ARENA_WIDTH: f32 = 800.0;
 pub const ARENA_HEIGHT: f32 = 600.0;
@@ -28,6 +28,7 @@ impl SimpleState for RustBots {
         let sprite_sheet_handle = load_sprite_sheet(world);
 
         world.register::<Bot>();
+        world.register::<Size>();
         world.register::<Velocity>();
         world.register::<Tint>();
 

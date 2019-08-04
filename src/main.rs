@@ -33,6 +33,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(WindowBundle::from_config_path(display_config_path))?
         .with_bundle(TransformBundle::new())?
         .with(systems::MovementSystem, "move_system", &[])
+        .with(systems::ScaleSystem, "scale_system", &["move_system"])
         .with(
             Processor::<SpriteSheet>::new(),
             "sprite_sheet_processor",

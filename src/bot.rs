@@ -8,7 +8,7 @@ use amethyst::{
 use rand::Rng;
 
 use crate::state::{ARENA_HEIGHT, ARENA_WIDTH};
-use crate::components::Velocity;
+use crate::components::{Size, Velocity};
 
 const START_BOTS: u32 = 10;
 const RANDOM_BOTS: bool = true;
@@ -56,10 +56,14 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
 
             let mut transform = Transform::default();
             transform.set_translation_xyz(x, y, 0.0);
+
+            let size = Size::new(rng.gen_range(0.5, 5.0));
+
             world.
                 create_entity()
                 .with(Bot::new())
                 .with(transform)
+                .with(size)
                 .with(col)
                 .with(velocity.clone())
                 .with(sprite_render.clone())
@@ -70,11 +74,11 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
             let idx_f32 = idx as f32;
             let x = ARENA_WIDTH / 2.0 + idx_f32 * 20.0;
             let y = ARENA_HEIGHT / 2.0 + idx_f32 * 20.0;
-            let rot = (idx_f32 * -30.0).to_radians();
             let mut transform = Transform::default();
             transform.set_translation_xyz(x, y, 0.0);
-            transform.set_rotation_2d(rot);
- 
+
+            let size = Size::new(1.0);
+
             let col = match idx {
                 0 => Tint(Srgba::new(1.0, 0.0, 0.0, 1.0)),  // Red
                 1 => Tint(Srgba::new(0.0, 1.0, 0.0, 1.0)),  // Green
@@ -90,6 +94,7 @@ pub fn initialise_bots(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
                 create_entity()
                 .with(Bot::new())
                 .with(transform)
+                .with(size)
                 .with(col)
                 .with(velocity.clone())
                 .with(sprite_render.clone())
